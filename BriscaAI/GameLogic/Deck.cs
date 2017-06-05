@@ -111,6 +111,13 @@ namespace BriscaAI.GameLogic
             return Cards[0];
         }
 
+        public void SetTrumphCard()
+        {
+            var card = Cards[Cards.Count - 1];
+            Cards.Remove(card);
+            Cards.Insert(0, card);
+        }
+
         public Card SwitchTrumphCard(Card card)
         {
             //Get and remove old trumph card
