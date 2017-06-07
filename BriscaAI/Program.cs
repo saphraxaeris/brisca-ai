@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using BriscaAI.GameLogic;
 
 namespace BriscaAI
@@ -7,8 +8,7 @@ namespace BriscaAI
     {
         static void Main(string[] args)
         {
-            var Deck = new Deck(GameLogic.Deck.DeckCapacity.FortyEight);
-            Console.WriteLine("Hello World!");
+            
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace BriscaAI.GameLogic
@@ -45,7 +46,7 @@ namespace BriscaAI.GameLogic
                 //Ask each player for mulligan
                 foreach (var player in _players)
                 {
-                    if (player.WillMulligan())
+                    if (player.WillMulligan(Timeout))
                         player.Hand = _table.Deck.Mulligan(player.Hand);
                 }
             }
@@ -55,6 +56,8 @@ namespace BriscaAI.GameLogic
             {
                 PlayRound();
             }
+
+            Console.WriteLine("\nGame Ended!\n");
 
             ShowPlayerRanking();
         }
@@ -96,12 +99,93 @@ namespace BriscaAI.GameLogic
 
         private int SelectRoundWinner(List<Card> roundCards)
         {
-            throw new NotImplementedException();
+            var lifeSuit = _table.Deck.TrumphCard().Suit;
+            var lifeCount = 0;
+
+            //Count cards with same suit as trumph card
+            foreach (var card in roundCards)
+            {
+                if (card.Suit == lifeSuit)
+                    lifeCount++;
+            }
+
+            if (lifeCount == 1)
+            {
+                //No contest
+                for (int i = 0; i < roundCards.Count; i++)
+                {
+                    if (roundCards[i].Suit == lifeSuit)
+                    {
+                        return i;
+                    }
+                }
+            }
+            else if (lifeCount == 0)
+            {
+                //First player suit becomes life suit
+                lifeSuit = roundCards[0].Suit;
+            }
+
+            //Check which life card would win
+            //Get eligible cards for winning
+            var eligibleCards = new List<Card>();
+            foreach (var card in roundCards)
+            {
+                if (card.Suit == lifeSuit)
+                    eligibleCards.Add(card);
+            }
+
+            //Sort cards
+            eligibleCards.Sort();
+
+            //Card at position 0 wins
+            //Find player that owns card
+            for (int i = 0; i < roundCards.Count; i++)
+            {
+                if (roundCards[i] == eligibleCards[0])
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         private void ShowPlayerRanking()
         {
-            throw new NotImplementedException();
+            var ranked = new List<Player>();
+            while (_players.Count > 0)
+            {
+                Player maxPlayer = null;
+                int maxScore = 0;
+                foreach (var player in _players)
+                {
+                    var score = GetPlayerScore(player.WonCards);
+                    if (maxScore < score)
+                    {
+                        maxPlayer = player;
+                        maxScore = score;
+                    }
+                }
+                _players.Remove(maxPlayer);
+                ranked.Add(maxPlayer);
+            }
+
+            Console.WriteLine("\n\nPlayer Rankning:\n");
+            for (int i = 0; i < ranked.Count; i++)
+            {
+                Console.WriteLine($"#{i+1} {ranked[i].Name} - {GetPlayerScore(ranked[i].WonCards)} points\n");
+            }
+        }
+
+        private int GetPlayerScore(List<Card> cards)
+        {
+            var score = 0;
+            foreach (var card in cards)
+            {
+                score += card.Value;
+            }
+            return score;
         }
     }
 }

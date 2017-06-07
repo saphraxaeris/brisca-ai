@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BriscaAI.GameLogic
 {
-    public class Card
+    public class Card : IComparable
     {
         public enum Suits { Gold, Club, Sword, Cup }
 
@@ -44,5 +44,48 @@ namespace BriscaAI.GameLogic
             }
         }
         public Suits Suit { get; set; }
+
+        public override string ToString()
+        {
+            var suit = "";
+            switch (Suit)
+            {
+                case Suits.Gold:
+                    suit = "Gold";
+                    break;
+                case Suits.Club:
+                    suit = "Club";
+                    break;
+                case Suits.Sword:
+                    suit = "Sword";
+                    break;
+                case Suits.Cup:
+                    suit = "Cup";
+                    break;
+            }
+            return $"{suit} - {Number}";
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj == null)
+                return 1;
+            var otherCard = obj as Card;
+            if (otherCard == null)
+                return 1;
+            if (Value < otherCard.Value)
+                return -1;
+            else if (Value > otherCard.Value)
+                return 1;
+            else
+            {
+                if(_number < otherCard.Number)
+                    return -1;
+                else if (_number > otherCard.Number)
+                    return 1;
+                else
+                    return 0;
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace BriscaAI.Agents
             throw new NotImplementedException();
         }
 
-        public override bool WillMulligan()
+        public override bool WillMulligan(int timeout)
         {
             throw new NotImplementedException();
         }

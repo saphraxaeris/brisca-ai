@@ -6,7 +6,7 @@ namespace BriscaAI.GameLogic
 {
     public abstract class Player
     {
-        protected string Name { get; set; }
+        public string Name { get; set; }
         public List<Card> Hand { get; set; }
         public List<Card> WonCards { get; set; }
 
@@ -19,6 +19,6 @@ namespace BriscaAI.GameLogic
 
         public abstract Card PlayCard(int timeout, Table table);
         public abstract void RecieveCard(Card card);
-        public abstract bool WillMulligan();
+        public abstract bool WillMulligan(int timeout);
     }
 }
