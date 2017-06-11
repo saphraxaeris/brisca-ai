@@ -8,6 +8,7 @@ namespace BriscaAI.GameLogic
     {
         public string Name { get; set; }
         public List<Card> Hand { get; set; }
+        public List<Card> Options { get; set; }
         public List<Card> WonCards { get; set; }
 
         protected Player(string name)
@@ -15,6 +16,7 @@ namespace BriscaAI.GameLogic
             Name = name;
             Hand = new List<Card>();
             WonCards = new List<Card>();
+            Options = new Deck(0).Cards;
         }
 
         public abstract Card PlayCard(int timeout, Table table);

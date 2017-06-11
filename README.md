@@ -9,5 +9,9 @@
 * Add 2-7 rule
 * Add black hand rule
 
+#Latest Development
+* Added functionality to ComputerAgent
+* Monte-Carlo-ish solution.
+
 # Authors
 Jose Garcia, Stephan Elias Remy

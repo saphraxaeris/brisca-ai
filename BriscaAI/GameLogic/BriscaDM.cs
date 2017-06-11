@@ -86,7 +86,7 @@ namespace BriscaAI.GameLogic
             //Select round winner and set as first player of next round
             _firstPlayerIndex = SelectRoundWinner(_table.PlayedCards);
             _players[_firstPlayerIndex].WonCards.AddRange(_table.PlayedCards);
-
+            _table.CardHistory.AddRange(_table.PlayedCards);
             //Reset Played Cards
             _table.PlayedCards.Clear();
 
