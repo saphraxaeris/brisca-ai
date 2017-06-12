@@ -44,7 +44,8 @@ namespace BriscaAI.Agents
 
                         if (tempPoints > points) { points = tempPoints; toPlay = j; }
                     }
-                    playedCard = true;
+                    if(toPlay != null)
+                        playedCard = true;
                 }
                 else
                 {
@@ -54,7 +55,7 @@ namespace BriscaAI.Agents
             //}
             //s.Stop();
 
-            //if (!playedCard && toPlay == null)
+            //if (!playedCard)
             //{
             //    //TODO
             //    //Must pick best card to play very quickly
