@@ -16,7 +16,7 @@ namespace BriscaAI.Agents
 
             removeOptions(played);
             removeOptions(table.CardHistory);
-            var trump = table.Deck.TrumphCard();
+            var trump = table.Deck.TrumpSuit;
             int i = getWinner(played,trump);
 
             double points = 0;
@@ -24,7 +24,7 @@ namespace BriscaAI.Agents
             foreach (var j in Hand) {
                 double tempPoints = 0;
                 if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
-                else if (played[i].Suit != j.Suit && j.Suit == trump.Suit) { tempPoints += (j.Value + valueSum(played)); }
+                else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
 
                 tempPoints += (avgPointsWon(Options, trump,j,played[i]) * (3 - played.Count));
 
@@ -36,13 +36,13 @@ namespace BriscaAI.Agents
 
         }
 
-        private double avgPointsWon(List<Card> options, Card trump, Card j,Card prevWinner)
+        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner)
         {
-            bool isTrump = (j.Suit == trump.Suit);
+            bool isTrump = (j.Suit == trump);
             double points = 0;
             foreach (var i in options)
             {
-                if (i.Suit != prevWinner.Suit && i.Suit != trump.Suit) { points += i.Value; }
+                if (i.Suit != prevWinner.Suit && i.Suit != trump) { points += i.Value; }
                 else if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
             }
 
@@ -58,14 +58,14 @@ namespace BriscaAI.Agents
             return vals;
         }
 
-        private int getWinner(List<Card> roundCards,Card lifeSuit)
+        private int getWinner(List<Card> roundCards,Card.Suits lifeSuit)
         {
             var lifeCount = 0;
 
             //Count cards with same suit as trumph card
             foreach (var card in roundCards)
             {
-                if (card.Suit == lifeSuit.Suit)
+                if (card.Suit == lifeSuit)
                     lifeCount++;
             }
 
@@ -74,7 +74,7 @@ namespace BriscaAI.Agents
                 //No contest
                 for (int i = 0; i < roundCards.Count; i++)
                 {
-                    if (roundCards[i].Suit == lifeSuit.Suit)
+                    if (roundCards[i].Suit == lifeSuit)
                     {
                         return i;
                     }
@@ -83,7 +83,7 @@ namespace BriscaAI.Agents
             else if (lifeCount == 0)
             {
                 //First player suit becomes life suit
-                lifeSuit = roundCards[0];
+                lifeSuit = roundCards[0].Suit;
             }
 
             //Check which life card would win
@@ -91,7 +91,7 @@ namespace BriscaAI.Agents
             var eligibleCards = new List<Card>();
             foreach (var card in roundCards)
             {
-                if (card.Suit == lifeSuit.Suit)
+                if (card.Suit == lifeSuit)
                     eligibleCards.Add(card);
             }
 
@@ -131,9 +131,9 @@ namespace BriscaAI.Agents
             Hand.Add(card);
         }
 
-        public override bool WillMulligan(int timeout)
+        public override void addPointsWon(List<Card> cardsWon)
         {
-            throw new NotImplementedException();
+            PointsWon += valueSum(cardsWon);
         }
     }
 }

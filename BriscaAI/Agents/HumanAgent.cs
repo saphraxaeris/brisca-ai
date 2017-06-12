@@ -8,6 +8,22 @@ namespace BriscaAI.Agents
     public class HumanAgent : Player
     {
         public HumanAgent(string name) : base(name) { }
+
+        private int valueSum(List<Card> played)
+        {
+            int vals = 0;
+            foreach (var i in played)
+            {
+                vals += i.Value;
+            }
+            return vals;
+        }
+
+        public override void addPointsWon(List<Card> cardsWon)
+        {
+            PointsWon += valueSum(cardsWon);
+        }
+
         public override Card PlayCard(int timeout, Table table)
         {
             Console.WriteLine($"Trumph card is: {table.Deck.TrumphCard()}");
@@ -48,38 +64,11 @@ namespace BriscaAI.Agents
 
         public override void RecieveCard(Card card)
         {
-            if(Hand.Count == 3)
-                return;
+            if (Hand.Count == 3)
+                throw new Exception();
             Hand.Add(card);
         }
 
-        public override bool WillMulligan(int timeout)
-        {
-            try
-            {
-                while (true)
-                {
-                    Console.WriteLine("\nWant to mulligan hand? (y/n)");
-                    Console.WriteLine($"(Will timeout in {(int)timeout / 1000} seconds)");
-                    var input = Reader.ReadLine(timeout);
-                    if (input.ToLower() == "y")
-                    {
-                        return true;
-                    }
-                    else if(input.ToLower() == "n")
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Could not understand input...\n");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
+       
     }
 }

@@ -41,15 +41,6 @@ namespace BriscaAI.GameLogic
             //Set trumph card
             _table.Deck.SetTrumphCard();
 
-            if (Mulligan)
-            {
-                //Ask each player for mulligan
-                foreach (var player in _players)
-                {
-                    if (player.WillMulligan(Timeout))
-                        player.Hand = _table.Deck.Mulligan(player.Hand);
-                }
-            }
 
             //Start Rounds
             while (CountCards() > 0)
@@ -85,8 +76,9 @@ namespace BriscaAI.GameLogic
 
             //Select round winner and set as first player of next round
             _firstPlayerIndex = SelectRoundWinner(_table.PlayedCards);
-            _players[_firstPlayerIndex].WonCards.AddRange(_table.PlayedCards);
+            _players[_firstPlayerIndex].addPointsWon(_table.PlayedCards);
             _table.CardHistory.AddRange(_table.PlayedCards);
+
             //Reset Played Cards
             _table.PlayedCards.Clear();
 
@@ -160,7 +152,7 @@ namespace BriscaAI.GameLogic
                 int maxScore = 0;
                 foreach (var player in _players)
                 {
-                    var score = GetPlayerScore(player.WonCards);
+                    int score = player.PointsWon;
                     if (maxScore < score)
                     {
                         maxPlayer = player;
@@ -174,7 +166,7 @@ namespace BriscaAI.GameLogic
             Console.WriteLine("\n\nPlayer Rankning:\n");
             for (int i = 0; i < ranked.Count; i++)
             {
-                Console.WriteLine($"#{i+1} {ranked[i].Name} - {GetPlayerScore(ranked[i].WonCards)} points\n");
+                Console.WriteLine($"#{i+1} {ranked[i].Name} - {ranked[i].PointsWon} points\n");
             }
         }
 
