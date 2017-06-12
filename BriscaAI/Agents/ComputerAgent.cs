@@ -50,7 +50,6 @@ namespace BriscaAI.Agents
                     }
                     if(toPlay != null)
                         playedCard = true;
-                }
             }
             s.Stop();
 
@@ -63,7 +62,7 @@ namespace BriscaAI.Agents
             return toPlay;
         }
 
-        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner == null)
+        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner = null)
         {
             bool isTrump = (j.Suit == trump);
             double points = 0;

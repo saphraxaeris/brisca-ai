@@ -72,6 +72,7 @@ namespace BriscaAI.GameLogic
             for (int i = 0; i < _players.Count; i++)
             {
                 _table.PlayedCards.Add(_players[(i+ _firstPlayerIndex) % _players.Count].PlayCard(Timeout, _table));
+                Console.WriteLine(_players[i].Name + " played a card");
             }
 
             //Select round winner and set as first player of next round
