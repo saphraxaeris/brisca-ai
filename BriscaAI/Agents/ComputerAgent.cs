@@ -22,55 +22,62 @@ namespace BriscaAI.Agents
             var trump = table.Deck.TrumpSuit;
             int i = getWinner(played,trump);
             var playedCard = false;
-            //Stopwatch s = new Stopwatch();
-            //s.Start();
-            //while (s.Elapsed < TimeSpan.FromMilliseconds(timeout) && !playedCard)
-            //{
-            if (i >= 0)
+            Stopwatch s = new Stopwatch();
+            s.Start();
+            while (s.Elapsed < TimeSpan.FromMilliseconds(timeout) && !playedCard)
             {
-                foreach (var j in Hand)
-                {
-                    //Timeout occurs must break out of loop
-                    //if (s.Elapsed < TimeSpan.FromMilliseconds(timeout))
-                    //    break;
+                    foreach (var j in Hand)
+                    {
+                        //Timeout occurs must break out of loop
+                        if (s.Elapsed < TimeSpan.FromMilliseconds(timeout))
+                           break;
 
-                    double tempPoints = 0;
-                    if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
-                    else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
+                        double tempPoints = 0;
 
-                    tempPoints += (avgPointsWon(Options, trump, j, played[i]) * (3 - played.Count));
+                        if(i >= 0)
+                        {
+                            if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
+                            else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
 
-                    if (tempPoints > points) { points = tempPoints; toPlay = j; }
+                            tempPoints += (avgPointsWon(Options, trump, j, played[i]) * (3 - played.Count));
+                        }
+                        else
+                        {
+                            tempPoints += (avgPointsWon(Options, trump, j, null) * (3 - played.Count));
+                        }
+
+                        if (tempPoints > points) { points = tempPoints; toPlay = j; }
+                    }
+                    if(toPlay != null)
+                        playedCard = true;
                 }
-                if(toPlay != null)
-                    playedCard = true;
             }
-            else
+            s.Stop();
+
+            if (!playedCard)
             {
-                //TODO
-                //AI will go first
+                //Timeout occured, play first card in hand
+                toPlay = Hand[0];
             }
-            //}
-            //s.Stop();
-
-            //if (!playedCard)
-            //{
-            //    //TODO
-            //    //Must pick best card to play very quickly
-            //}
-            
+            Hand.Remove(toPlay);
             return toPlay;
-
         }
 
-        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner)
+        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner == null)
         {
             bool isTrump = (j.Suit == trump);
             double points = 0;
             foreach (var i in options)
             {
-                if (i.Suit != prevWinner.Suit && i.Suit != trump) { points += i.Value; }
-                else if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
+                if(prevWinner != null)
+                {
+                    if (i.Suit != prevWinner.Suit && i.Suit != trump) { points += i.Value; }
+                    else if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
+                }
+                else
+                {
+                    if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
+                }
             }
 
             return points / options.Count;
