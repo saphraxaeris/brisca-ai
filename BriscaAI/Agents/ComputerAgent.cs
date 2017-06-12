@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using BriscaAI.GameLogic;
 
@@ -13,25 +14,51 @@ namespace BriscaAI.Agents
         public override Card PlayCard(int timeout, Table table)
         {
             var played = table.PlayedCards;
+            double points = 0;
+            Card toPlay = null;
 
             removeOptions(played);
             removeOptions(table.CardHistory);
             var trump = table.Deck.TrumpSuit;
             int i = getWinner(played,trump);
+            var playedCard = false;
+            //Stopwatch s = new Stopwatch();
+            //s.Start();
+            //while (s.Elapsed < TimeSpan.FromMilliseconds(timeout) && !playedCard)
+            //{
+            if (i >= 0)
+            {
+                foreach (var j in Hand)
+                {
+                    //Timeout occurs must break out of loop
+                    //if (s.Elapsed < TimeSpan.FromMilliseconds(timeout))
+                    //    break;
 
-            double points = 0;
-            Card toPlay = null;
-            foreach (var j in Hand) {
-                double tempPoints = 0;
-                if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
-                else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
+                    double tempPoints = 0;
+                    if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
+                    else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
 
-                tempPoints += (avgPointsWon(Options, trump,j,played[i]) * (3 - played.Count));
+                    tempPoints += (avgPointsWon(Options, trump, j, played[i]) * (3 - played.Count));
 
-                if (tempPoints > points) { points = tempPoints; toPlay = j; }
+                    if (tempPoints > points) { points = tempPoints; toPlay = j; }
+                }
+                if(toPlay != null)
+                    playedCard = true;
             }
+            else
+            {
+                //TODO
+                //AI will go first
+            }
+            //}
+            //s.Stop();
 
-
+            //if (!playedCard)
+            //{
+            //    //TODO
+            //    //Must pick best card to play very quickly
+            //}
+            
             return toPlay;
 
         }
@@ -127,7 +154,7 @@ namespace BriscaAI.Agents
 
         public override void RecieveCard(Card card)
         {
-            if (Hand.Count > 2) { throw new Exception(); }
+            if (Hand.Count == 2) { return; }
             Hand.Add(card);
         }
 
