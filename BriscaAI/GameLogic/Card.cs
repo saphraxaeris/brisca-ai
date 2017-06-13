@@ -69,20 +69,20 @@ namespace BriscaAI.GameLogic
         public int CompareTo(object obj)
         {
             if (obj == null)
-                return 1;
+                return -1;
             var otherCard = obj as Card;
             if (otherCard == null)
-                return 1;
-            if (Value < otherCard.Value)
                 return -1;
-            else if (Value > otherCard.Value)
+            if (Value < otherCard.Value)
                 return 1;
+            else if (Value > otherCard.Value)
+                return -1;
             else
             {
                 if(_number < otherCard.Number)
-                    return -1;
-                else if (_number > otherCard.Number)
                     return 1;
+                else if (_number > otherCard.Number)
+                    return -1;
                 else
                     return 0;
             }

@@ -40,7 +40,7 @@ namespace BriscaAI.Agents
 
                         if(i >= 0)
                         {
-                            if (played[i].Suit == j.Suit && j.CompareTo(played[i]) < 0) { tempPoints += (j.Value + valueSum(played)); }
+                            if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
                             else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
 
                             tempPoints += (avgPointsWon(Options, trump, j, played[i]) * (3 - played.Count));
@@ -76,11 +76,11 @@ namespace BriscaAI.Agents
                 if(prevWinner != null)
                 {
                     if (i.Suit != prevWinner.Suit && i.Suit != trump) { points += i.Value; }
-                    else if (j.Suit == i.Suit && j.CompareTo(i) < 0) { points += i.Value; }
+                    else if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
                 }
                 else
                 {
-                    if (j.Suit == i.Suit && j.CompareTo(i) < 0) { points += i.Value; }
+                    if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
                 }
             }
 
