@@ -26,7 +26,7 @@ namespace BriscaAI.Agents
 
         public override Card PlayCard(int timeout, Table table)
         {
-            Console.WriteLine($"Trumph card is: {table.Deck.TrumphCard()}");
+            Console.WriteLine($"Trumph card is: {table.Deck.TrumphCard}");
 
             Console.WriteLine("Cards Played up to now:");
             Helper.PrintCards(table.PlayedCards);
@@ -55,6 +55,7 @@ namespace BriscaAI.Agents
             }
             catch (Exception e)
             {
+                Console.WriteLine(Name + " has took to long to play a card.");
                 var card = Hand[0];
                 Hand.Remove(card);
                 Console.WriteLine($"Played: {card.ToString()}");

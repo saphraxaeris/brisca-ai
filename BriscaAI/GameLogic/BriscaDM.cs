@@ -41,11 +41,13 @@ namespace BriscaAI.GameLogic
             //Set trumph card
             _table.Deck.SetTrumphCard();
 
-
             //Start Rounds
             while (CountCards() > 0)
             {
+                Console.WriteLine("New Round: " + CountCards() + " cards remaining.");
+                Console.WriteLine("Trump Card is: " + _table.Deck.TrumphCard);
                 PlayRound();
+                Console.WriteLine("*********************************************************\n");
             }
 
             Console.WriteLine("\nGame Ended!\n");
@@ -59,7 +61,11 @@ namespace BriscaAI.GameLogic
             var playerCards = 0;
             foreach (var player in _players)
             {
-                playerCards += player.Hand.Count;
+                foreach (var card in player.Hand)
+                {
+                    if (card != null)
+                        playerCards++;
+                }
             }
 
             //return playerCards + cards available in deck
@@ -72,12 +78,20 @@ namespace BriscaAI.GameLogic
             for (int i = 0; i < _players.Count; i++)
             {
                 _table.PlayedCards.Add(_players[(i+ _firstPlayerIndex) % _players.Count].PlayCard(Timeout, _table));
-                Console.WriteLine(_players[i].Name + " played a card");
+                Console.WriteLine(_players[(i + _firstPlayerIndex) % _players.Count].Name + " played a card: " + _table.PlayedCards[_table.PlayedCards.Count-1]);
             }
 
             //Select round winner and set as first player of next round
             _firstPlayerIndex = SelectRoundWinner(_table.PlayedCards);
+
+            var oldScore = _players[_firstPlayerIndex].PointsWon;
+
             _players[_firstPlayerIndex].addPointsWon(_table.PlayedCards);
+
+            var newScore = _players[_firstPlayerIndex].PointsWon;
+
+            Console.WriteLine(_players[_firstPlayerIndex].Name + " won the round and acquired " + (newScore - oldScore) + " points.\n");
+
             _table.CardHistory.AddRange(_table.PlayedCards);
 
             //Reset Played Cards
@@ -92,7 +106,7 @@ namespace BriscaAI.GameLogic
 
         private int SelectRoundWinner(List<Card> roundCards)
         {
-            var lifeSuit = _table.Deck.TrumphCard().Suit;
+            var lifeSuit = _table.Deck.TrumphCard.Suit;
             var lifeCount = 0;
 
             //Count cards with same suit as trumph card
@@ -164,10 +178,10 @@ namespace BriscaAI.GameLogic
                 ranked.Add(maxPlayer);
             }
 
-            Console.WriteLine("\n\nPlayer Rankning:\n");
+            Console.WriteLine("\nPlayer Rankning:");
             for (int i = 0; i < ranked.Count; i++)
             {
-                Console.WriteLine($"#{i+1} {ranked[i].Name} - {ranked[i].PointsWon} points\n");
+                Console.WriteLine($"#{i+1} {ranked[i].Name} - {ranked[i].PointsWon} points");
             }
         }
 

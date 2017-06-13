@@ -6,7 +6,8 @@ namespace BriscaAI.GameLogic
     {
         public enum DeckCapacity { Forty, FortyEight }
         public List<Card> Cards { get; set; }
-        public Card.Suits TrumpSuit;
+        public Card.Suits TrumphSuit;
+        public Card TrumphCard;
         public Deck(DeckCapacity size)
         {
             var capacity = (size == DeckCapacity.Forty) ? 40 : 48;
@@ -103,16 +104,7 @@ namespace BriscaAI.GameLogic
         }
 
         public Card.Suits getTrumpSuit() {
-            return TrumpSuit;
-        }
-
-        public Card TrumphCard()
-        {
-            if (Cards.Count == 0)
-                return null;
-
-            //Return bottom card
-            return Cards[0];
+            return TrumphSuit;
         }
 
         public void SetTrumphCard()
@@ -120,7 +112,8 @@ namespace BriscaAI.GameLogic
             var card = Cards[Cards.Count - 1];
             Cards.Remove(card);
             Cards.Insert(0, card);
-            TrumpSuit = card.Suit;
+            TrumphSuit = card.Suit;
+            TrumphCard = card;
         }
 
         public Card SwitchTrumphCard(Card card)

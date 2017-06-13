@@ -35,7 +35,8 @@ namespace BriscaAI
             int i = 1;
             foreach (var card in hand)
             {
-                Console.WriteLine($"\t{i}. {card.ToString()}");
+                if(card != null)
+                    Console.WriteLine($"\t{i}. {card.ToString()}");
                 i++;
             }
         }
