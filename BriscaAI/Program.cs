@@ -12,7 +12,7 @@ namespace BriscaAI
         {
             var players = new List<Player>();
             players.Add(new ComputerAgent("AI 1"));
-            players.Add(new HumanAgent("Jose"));
+            players.Add(new ComputerAgent("Jose"));
             var DM = new BriscaDM(players, Deck.DeckCapacity.Forty);
             DM.Timeout = 10000;
             DM.StartGame();

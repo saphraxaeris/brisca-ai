@@ -50,24 +50,12 @@ namespace BriscaAI.Agents
                     continue;
                 //Timeout occurs must break out of loop
                 double tempPoints = 0;
-
-                if (i >= 0)
-                {
-                    if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
-                    else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
-                    else
-                    {
-                        List<Card> passerHand = new List<Card>();
-                        passerHand.AddRange(Hand);
-                        passerHand.Remove(j);
-                        Shuffle(Options);
-                        tempPoints += staticMonteCarlo(passerHand, played,Options, 10, 2,trump,j);
-                    }
-                }
-                else
-                {
-                    tempPoints += (avgPointsWon(Options, trump, j, null) * (3 - played.Count));
-                }
+                List<Card> passerHand = new List<Card>();
+                passerHand.AddRange(Hand);
+                passerHand.Remove(j);
+                Shuffle(Options);
+                tempPoints += staticMonteCarlo(passerHand, played,Options, 10000, 2,trump,j);
+                
 
                     if (tempPoints >= points) { points = tempPoints; toPlay = j; }
             }
@@ -88,21 +76,28 @@ namespace BriscaAI.Agents
 
         private double staticMonteCarlo(List<Card> passerHand, List<Card> played, List<Card> options, int iterations, int players, Card.Suits trump, Card j)
         {
+            
             double points = 0.0;
             for (int i = 0; i < iterations; i++) {
+                List<Card> cPlayed = new List<Card>();
+                cPlayed.AddRange(played);
                 List<Card> tempOptions = new List<Card>(options);
                 //Finish started round
-                int index = played.Count;
-                played.Add(j);
-                while (played.Count < players) { played.Add(tempOptions[0]);tempOptions.RemoveAt(0);}
-                int win = getWinner(played, trump);
-                if (win == index) { points += (valueSum(played)); }
-                played.Clear();
+                int index = cPlayed.Count;
+                cPlayed.Add(j);
+                while (cPlayed.Count < players) { cPlayed.Add(tempOptions[0]);tempOptions.RemoveAt(0);}
+                int win = getWinner(cPlayed, trump);
+                if (win == index) { points += (valueSum(cPlayed)); }
+                cPlayed.Clear();
 
 
                 if (tempOptions.Count > 0)
                 {
                     List<Card>[] playersCards = new List<Card>[players];
+                    for (int k = 0; k < players; k++)
+                    {
+                        playersCards[k] = new List<Card>();
+                    }
                     playersCards[0].AddRange(passerHand);
                     int cap = (tempOptions.Count + passerHand.Count) / players;
 
@@ -117,12 +112,12 @@ namespace BriscaAI.Agents
                         {
                             int val = (win + k) % players;
                             int r =(int)(_random.NextDouble() * playersCards[val].Count);
-                            played.Add(playersCards[val][r]);
+                            cPlayed.Add(playersCards[val][r]);
                             playersCards[val].RemoveAt(r);
                         }
-                        index = getWinner(played, trump);
-                        if ((index + win) % players == 0) { points += (valueSum(played)); }
-                        played.Clear();
+                        index = getWinner(cPlayed, trump);
+                        if ((index + win) % players == 0) { points += (valueSum(cPlayed)); }
+                        cPlayed.Clear();
                         win = index;
                     }
                 }
@@ -277,7 +272,8 @@ namespace BriscaAI.Agents
         {
             if (Hand.Count == 3)
                 throw new Exception();
-            Hand.Add(card);
+            if(card!=null)
+                Hand.Add(card);
         }
 
         public override void addPointsWon(List<Card> cardsWon)
