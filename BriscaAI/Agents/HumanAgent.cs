@@ -39,7 +39,7 @@ namespace BriscaAI.Agents
                 Card card = null;
                 while (string.IsNullOrEmpty(play))
                 {
-                    play = Reader.ReadLine(timeout);
+                    play = Reader.ReadLine();
                     if (play == "1")
                         card = Hand[0];
                     else if(play == "2")
@@ -55,7 +55,7 @@ namespace BriscaAI.Agents
             }
             catch (Exception e)
             {
-                Console.WriteLine(Name + " has took to long to play a card.");
+                Console.WriteLine(Name + " has taken to long to play a card.");
                 var card = Hand[0];
                 Hand.Remove(card);
                 Console.WriteLine($"Played: {card.ToString()}");

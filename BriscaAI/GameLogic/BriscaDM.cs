@@ -82,7 +82,7 @@ namespace BriscaAI.GameLogic
             }
 
             //Select round winner and set as first player of next round
-            _firstPlayerIndex = SelectRoundWinner(_table.PlayedCards);
+            _firstPlayerIndex = (SelectRoundWinner(_table.PlayedCards)+_firstPlayerIndex)%_players.Count;
 
             var oldScore = _players[_firstPlayerIndex].PointsWon;
 
@@ -126,6 +126,21 @@ namespace BriscaAI.GameLogic
                         return i;
                     }
                 }
+            }
+            else if (lifeCount > 1) {
+                int win = -1;
+                Card temp = null;
+                for (int i = 0; i < roundCards.Count; i++)
+                {
+                    if (roundCards[i].Suit == lifeSuit)
+                    {
+                        if (win == -1) { win = i; temp = roundCards[i]; }
+                        else if(roundCards[i].CompareTo(temp)>0){ win = i;temp = roundCards[i]; }
+                    }
+                }
+
+                return win;
+
             }
             else if (lifeCount == 0)
             {

@@ -10,7 +10,21 @@ namespace BriscaAI.Agents
     {
 
         public ComputerAgent(string name) : base(name) { }
-        
+
+        //From https://www.dotnetperls.com/fisher-yates-shuffle
+        static Random _random = new Random();
+        static void Shuffle<T>(List<T> array)
+        {
+            int n = array.Count;
+            for (int i = 0; i < n; i++)
+            { 
+                int r = i + (int)(_random.NextDouble() * (n - i));
+                T t = array[r];
+                array[r] = array[i];
+                array[i] = t;
+            }
+        }
+
         public override Card PlayCard(int timeout, Table table)
         {
             Console.WriteLine(Name + "'s Hand:");
@@ -21,50 +35,116 @@ namespace BriscaAI.Agents
 
             removeOptions(played);
             removeOptions(table.CardHistory);
+            removeOptions(Hand);
+            //Console.WriteLine(Options.Count+" Options left");
             var trump = table.Deck.TrumphSuit;
             int i = getWinner(played,trump);
             var playedCard = false;
             Stopwatch s = new Stopwatch();
             s.Start();
-            while (s.Elapsed < TimeSpan.FromMilliseconds(timeout) && !playedCard)
+            //while (s.Elapsed < TimeSpan.FromMilliseconds(timeout) && !playedCard)
+            //{
+            foreach (var j in Hand)
             {
-                    foreach (var j in Hand)
+                if (j == null)
+                    continue;
+                //Timeout occurs must break out of loop
+                double tempPoints = 0;
+
+                if (i >= 0)
+                {
+                    if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
+                    else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
+                    else
                     {
-                        if (j == null)
-                            continue;
-                        //Timeout occurs must break out of loop
-                        if (s.Elapsed < TimeSpan.FromMilliseconds(timeout))
-                           break;
-
-                        double tempPoints = 0;
-
-                        if(i >= 0)
-                        {
-                            if (played[i].Suit == j.Suit && j.CompareTo(played[i]) > 0) { tempPoints += (j.Value + valueSum(played)); }
-                            else if (played[i].Suit != j.Suit && j.Suit == trump) { tempPoints += (j.Value + valueSum(played)); }
-
-                            tempPoints += (avgPointsWon(Options, trump, j, played[i]) * (3 - played.Count));
-                        }
-                        else
-                        {
-                            tempPoints += (avgPointsWon(Options, trump, j, null) * (3 - played.Count));
-                        }
-
-                        if (tempPoints > points) { points = tempPoints; toPlay = j; }
+                        List<Card> passerHand = new List<Card>();
+                        passerHand.AddRange(Hand);
+                        passerHand.Remove(j);
+                        Shuffle(Options);
+                        tempPoints += staticMonteCarlo(passerHand, played,Options, 10, 2,trump,j);
                     }
-                    if(toPlay != null)
-                        playedCard = true;
+                }
+                else
+                {
+                    tempPoints += (avgPointsWon(Options, trump, j, null) * (3 - played.Count));
+                }
+
+                    if (tempPoints >= points) { points = tempPoints; toPlay = j; }
             }
+                if(toPlay != null)
+                    playedCard = true;
+            //}
             s.Stop();
 
             if (!playedCard)
             {
                 //Timeout occured, play first card in hand
-                Console.WriteLine(Name + " has took to long to play a card.");
+                Console.WriteLine(Name + " has taken to long to play a card.");
                 toPlay = Hand[0];
             }
             Hand.Remove(toPlay);
             return toPlay;
+        }
+
+        private double staticMonteCarlo(List<Card> passerHand, List<Card> played, List<Card> options, int iterations, int players, Card.Suits trump, Card j)
+        {
+            double points = 0.0;
+            for (int i = 0; i < iterations; i++) {
+                List<Card> tempOptions = new List<Card>(options);
+                //Finish started round
+                int index = played.Count;
+                played.Add(j);
+                while (played.Count < players) { played.Add(tempOptions[0]);tempOptions.RemoveAt(0);}
+                int win = getWinner(played, trump);
+                if (win == index) { points += (valueSum(played)); }
+                played.Clear();
+
+
+                if (tempOptions.Count > 0)
+                {
+                    List<Card>[] playersCards = new List<Card>[players];
+                    playersCards[0].AddRange(passerHand);
+                    int cap = (tempOptions.Count + passerHand.Count) / players;
+
+                    for (int k = 0; k < players; k++)
+                    {
+                        while (playersCards[k].Count < cap) { playersCards[k].Add(tempOptions[0]); tempOptions.RemoveAt(0); }
+                    }
+                    win = 0;
+                    while (playersCards[0].Count > 0)
+                    {
+                        for (int k = 0; k < players; k++)
+                        {
+                            int val = (win + k) % players;
+                            int r =(int)(_random.NextDouble() * playersCards[val].Count);
+                            played.Add(playersCards[val][r]);
+                            playersCards[val].RemoveAt(r);
+                        }
+                        index = getWinner(played, trump);
+                        if ((index + win) % players == 0) { points += (valueSum(played)); }
+                        played.Clear();
+                        win = index;
+                    }
+                }
+            }
+
+
+            return PointsWon / iterations;
+        }
+
+        private void removeTempOptions(List<Card> played, List<Card> tempOptions)
+        {
+            foreach (var i in played)
+            {
+                foreach (var j in tempOptions)
+                {
+                    if (i.CompareTo(j) == 0 && i.Suit == j.Suit)
+                    {
+                        tempOptions.Remove(j);
+                        break;
+                    }
+                }
+            }
         }
 
         private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner = null)
@@ -132,6 +212,22 @@ namespace BriscaAI.Agents
                     }
                 }
             }
+            else if (lifeCount > 1)
+            {
+                int win = -1;
+                Card temp = null;
+                for (int i = 0; i < roundCards.Count; i++)
+                {
+                    if (roundCards[i].Suit == lifeSuit)
+                    {
+                        if (win == -1) { win = i; temp = roundCards[i]; }
+                        else if (roundCards[i].CompareTo(temp) > 0) { win = i; temp = roundCards[i]; }
+                    }
+                }
+
+                return win;
+
+            }
             else if (lifeCount == 0)
             {
                 //First player suit becomes life suit
@@ -169,7 +265,7 @@ namespace BriscaAI.Agents
             {
                 foreach (var j in Options)
                 {
-                    if (i.CompareTo(j) == 0) {
+                    if (i.CompareTo(j) == 0&&i.Suit==j.Suit) {
                         Options.Remove(j);
                         break;
                     }
