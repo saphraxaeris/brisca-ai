@@ -124,7 +124,7 @@ namespace BriscaAI.Agents
             }
 
 
-            return PointsWon / iterations;
+            return points / iterations;
         }
 
         private void removeTempOptions(List<Card> played, List<Card> tempOptions)
