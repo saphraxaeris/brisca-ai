@@ -9,14 +9,13 @@ namespace BriscaAI.GameLogic
         public List<Card> PlayedCards { get; set; }
         public List<Card> CardHistory { get; set; }
         public Deck Deck { get; set; }
-
-        public Table(Deck deck)
+        public int Players { get; set; }
+        public Table(Deck deck, int players)
         {
             Deck = deck;
             PlayedCards = new List<Card>();
             CardHistory = new List<Card>();
+            Players = players;
         }
-
-
     }
 }

@@ -19,7 +19,7 @@ namespace BriscaAI.GameLogic
             //Initialize players and table
             _players = players;
             _firstPlayerIndex = 0;
-            _table = new Table(new Deck(deckCapacity));
+            _table = new Table(new Deck(deckCapacity), _players.Count);
         }
 
         public void StartGame()
@@ -77,12 +77,12 @@ namespace BriscaAI.GameLogic
             //Each player plays their card
             for (int i = 0; i < _players.Count; i++)
             {
-                _table.PlayedCards.Add(_players[(i+ _firstPlayerIndex) % _players.Count].PlayCard(Timeout, _table));
-                Console.WriteLine(_players[(i + _firstPlayerIndex) % _players.Count].Name + " played a card: " + _table.PlayedCards[_table.PlayedCards.Count-1]);
+                _table.PlayedCards.Add(_players[(i + _firstPlayerIndex) % _players.Count].PlayCard(Timeout, _table));
+                Console.WriteLine(_players[(i + _firstPlayerIndex) % _players.Count].Name + " played a card: " + _table.PlayedCards[_table.PlayedCards.Count - 1]);
             }
 
             //Select round winner and set as first player of next round
-            _firstPlayerIndex = (SelectRoundWinner(_table.PlayedCards)+_firstPlayerIndex)%_players.Count;
+            _firstPlayerIndex = (SelectRoundWinner(_table.PlayedCards) + _firstPlayerIndex) % _players.Count;
 
             var oldScore = _players[_firstPlayerIndex].PointsWon;
 
@@ -127,7 +127,8 @@ namespace BriscaAI.GameLogic
                     }
                 }
             }
-            else if (lifeCount > 1) {
+            else if (lifeCount > 1)
+            {
                 int win = -1;
                 Card temp = null;
                 for (int i = 0; i < roundCards.Count; i++)
@@ -135,7 +136,7 @@ namespace BriscaAI.GameLogic
                     if (roundCards[i].Suit == lifeSuit)
                     {
                         if (win == -1) { win = i; temp = roundCards[i]; }
-                        else if(roundCards[i].CompareTo(temp)>0){ win = i;temp = roundCards[i]; }
+                        else if (roundCards[i].CompareTo(temp) > 0) { win = i; temp = roundCards[i]; }
                     }
                 }
 
@@ -196,7 +197,7 @@ namespace BriscaAI.GameLogic
             Console.WriteLine("\nPlayer Rankning:");
             for (int i = 0; i < ranked.Count; i++)
             {
-                Console.WriteLine($"#{i+1} {ranked[i].Name} - {ranked[i].PointsWon} points");
+                Console.WriteLine($"#{i + 1} {ranked[i].Name} - {ranked[i].PointsWon} points");
             }
         }
 

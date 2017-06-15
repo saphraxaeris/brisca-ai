@@ -8,8 +8,13 @@ namespace BriscaAI.Agents
 {
     public class ComputerAgent : Player
     {
+        private int _iterations = 10000;
 
-        public ComputerAgent(string name) : base(name) { }
+        public ComputerAgent(string name, int? iterations = null) : base(name)
+        {
+            if (iterations != null)
+                _iterations = iterations.Value;
+        }
 
         //From https://www.dotnetperls.com/fisher-yates-shuffle
         static Random _random = new Random();
@@ -17,7 +22,7 @@ namespace BriscaAI.Agents
         {
             int n = array.Count;
             for (int i = 0; i < n; i++)
-            { 
+            {
                 int r = i + (int)(_random.NextDouble() * (n - i));
                 T t = array[r];
                 array[r] = array[i];
@@ -38,7 +43,7 @@ namespace BriscaAI.Agents
             removeOptions(Hand);
             //Console.WriteLine(Options.Count+" Options left");
             var trump = table.Deck.TrumphSuit;
-            int i = getWinner(played,trump);
+            int i = getWinner(played, trump);
             var playedCard = false;
             Stopwatch s = new Stopwatch();
             s.Start();
@@ -54,13 +59,13 @@ namespace BriscaAI.Agents
                 passerHand.AddRange(Hand);
                 passerHand.Remove(j);
                 Shuffle(Options);
-                tempPoints += staticMonteCarlo(passerHand, played,Options, 10000, 2,trump,j);
-                
+                tempPoints += staticMonteCarlo(passerHand, played, Options, _iterations, table.Players, trump, j);
 
-                    if (tempPoints >= points) { points = tempPoints; toPlay = j; }
+
+                if (tempPoints >= points) { points = tempPoints; toPlay = j; }
             }
-                if(toPlay != null)
-                    playedCard = true;
+            if (toPlay != null)
+                playedCard = true;
             //}
             s.Stop();
 
@@ -76,16 +81,17 @@ namespace BriscaAI.Agents
 
         private double staticMonteCarlo(List<Card> passerHand, List<Card> played, List<Card> options, int iterations, int players, Card.Suits trump, Card j)
         {
-            
+
             double points = 0.0;
-            for (int i = 0; i < iterations; i++) {
+            for (int i = 0; i < iterations; i++)
+            {
                 List<Card> cPlayed = new List<Card>();
                 cPlayed.AddRange(played);
                 List<Card> tempOptions = new List<Card>(options);
                 //Finish started round
                 int index = cPlayed.Count;
                 cPlayed.Add(j);
-                while (cPlayed.Count < players) { cPlayed.Add(tempOptions[0]);tempOptions.RemoveAt(0);}
+                while (cPlayed.Count < players) { cPlayed.Add(tempOptions[0]); tempOptions.RemoveAt(0); }
                 int win = getWinner(cPlayed, trump);
                 if (win == index) { points += (valueSum(cPlayed)); }
                 cPlayed.Clear();
@@ -111,7 +117,7 @@ namespace BriscaAI.Agents
                         for (int k = 0; k < players; k++)
                         {
                             int val = (win + k) % players;
-                            int r =(int)(_random.NextDouble() * playersCards[val].Count);
+                            int r = (int)(_random.NextDouble() * playersCards[val].Count);
                             cPlayed.Add(playersCards[val][r]);
                             playersCards[val].RemoveAt(r);
                         }
@@ -142,13 +148,13 @@ namespace BriscaAI.Agents
             }
         }
 
-        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j,Card prevWinner = null)
+        private double avgPointsWon(List<Card> options, Card.Suits trump, Card j, Card prevWinner = null)
         {
             bool isTrump = (j.Suit == trump);
             double points = 0;
             foreach (var i in options)
             {
-                if(prevWinner != null)
+                if (prevWinner != null)
                 {
                     if (i.Suit != prevWinner.Suit && i.Suit != trump) { points += i.Value; }
                     else if (j.Suit == i.Suit && j.CompareTo(i) > 0) { points += i.Value; }
@@ -165,13 +171,14 @@ namespace BriscaAI.Agents
         private int valueSum(List<Card> played)
         {
             int vals = 0;
-            foreach (var i in played) {
+            foreach (var i in played)
+            {
                 vals += i.Value;
             }
             return vals;
         }
 
-        private int getWinner(List<Card> roundCards,Card.Suits lifeSuit)
+        private int getWinner(List<Card> roundCards, Card.Suits lifeSuit)
         {
             if (roundCards.Count == 0)
                 return -1;
@@ -260,7 +267,8 @@ namespace BriscaAI.Agents
             {
                 foreach (var j in Options)
                 {
-                    if (i.CompareTo(j) == 0&&i.Suit==j.Suit) {
+                    if (i.CompareTo(j) == 0 && i.Suit == j.Suit)
+                    {
                         Options.Remove(j);
                         break;
                     }
@@ -272,7 +280,7 @@ namespace BriscaAI.Agents
         {
             if (Hand.Count == 3)
                 throw new Exception();
-            if(card!=null)
+            if (card != null)
                 Hand.Add(card);
         }
 
