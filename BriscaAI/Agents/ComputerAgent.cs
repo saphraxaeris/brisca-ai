@@ -129,7 +129,6 @@ namespace BriscaAI.Agents
                 }
             }
 
-
             return points / iterations;
         }
 
